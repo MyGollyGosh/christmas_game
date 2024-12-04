@@ -10,8 +10,6 @@ GREEN = (0, 255, 0)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-screen = pygame.display.set_mode((800, 600))
-
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()

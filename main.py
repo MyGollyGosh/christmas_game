@@ -2,6 +2,7 @@ import pygame
 from lib.obstacle import Obstacle
 from lib.present import Present
 from lib.sleigh import Sleigh
+from lib.snow_flake import Snow
 # Initialize Pygame
 pygame.init()
 
@@ -28,6 +29,7 @@ def main():
     all_sprites = pygame.sprite.Group()
     presents = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
+    snow_flakes = pygame.sprite.Group()
     
     sleigh = Sleigh()
     all_sprites.add(sleigh)
@@ -35,6 +37,7 @@ def main():
     score = 0
     spawn_present_timer = 0
     spawn_obstacle_timer = 0
+    spawn_snow_flake_timer = 0
 
     running = True
     while running:
@@ -45,6 +48,7 @@ def main():
         # Spawn presents and obstacles
         spawn_present_timer += 1
         spawn_obstacle_timer += 1
+        spawn_snow_flake_timer += 1
 
         if spawn_present_timer > 60:
             present = Present()
@@ -57,6 +61,12 @@ def main():
             all_sprites.add(obstacle)
             obstacles.add(obstacle)
             spawn_obstacle_timer = 0
+        
+        if spawn_snow_flake_timer > 30:
+            snow = Snow()
+            all_sprites.add(snow)
+            snow_flakes.add(snow)
+            spawn_snow_flake_timer = 0
 
         # Update
         all_sprites.update()
@@ -66,6 +76,12 @@ def main():
         for hit in present_hits:
             hit.kill()
             score += 1
+
+        # Collision detection for snowflakes
+        snow_flake_hits = [s for s in snow_flakes if sleigh.hitbox.colliderect(s.hitbox)]
+        for hit in snow_flake_hits:
+            hit.kill()
+            sleigh.speed -= 0.01
 
         # Game over on obstacle collision
         obstacle_hits = [o for o in obstacles if sleigh.hitbox.colliderect(o.hitbox)]
@@ -81,6 +97,8 @@ def main():
             pygame.draw.rect(screen, RED, present.hitbox, 2)
         for obstacle in obstacles:
             pygame.draw.rect(screen, RED, obstacle.hitbox, 2)
+        for flake in snow_flakes:
+            pygame.draw.rect(screen, BLUE, flake.hitbox, 2)
 
         # Score display
         score_text = font.render(f"Score: {score}", True, (0, 0, 0))
