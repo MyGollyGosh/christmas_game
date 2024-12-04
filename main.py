@@ -3,6 +3,8 @@ from lib.obstacle import Obstacle
 from lib.present import Present
 from lib.sleigh import Sleigh
 from lib.snow_flake import Snow
+from lib.golden_candy_cane import Golden_candy_cane
+
 # Initialize Pygame
 pygame.init()
 
@@ -30,14 +32,20 @@ def main():
     presents = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
     snow_flakes = pygame.sprite.Group()
+    golden_candy_canes = pygame.sprite.Group()
     
     sleigh = Sleigh()
     all_sprites.add(sleigh)
 
-    score = 0
+    score = 60
     spawn_present_timer = 0
     spawn_obstacle_timer = 0
+    spawn_golden_candy_cane_timer = -500
+    obstacle_frequency = 120
     spawn_snow_flake_timer = 0
+    snow_flake_frequency = 30
+
+    health = 3
 
     running = True
     while running:
@@ -49,6 +57,7 @@ def main():
         spawn_present_timer += 1
         spawn_obstacle_timer += 1
         spawn_snow_flake_timer += 1
+        spawn_golden_candy_cane_timer += 1
 
         if spawn_present_timer > 60:
             present = Present()
@@ -56,17 +65,42 @@ def main():
             presents.add(present)
             spawn_present_timer = 0
 
-        if spawn_obstacle_timer > 120:
+        if spawn_obstacle_timer > obstacle_frequency:
             obstacle = Obstacle()
             all_sprites.add(obstacle)
             obstacles.add(obstacle)
             spawn_obstacle_timer = 0
         
-        if spawn_snow_flake_timer > 30:
+        if spawn_snow_flake_timer > snow_flake_frequency:
             snow = Snow()
             all_sprites.add(snow)
             snow_flakes.add(snow)
             spawn_snow_flake_timer = 0
+
+        if spawn_golden_candy_cane_timer > 500:
+            golden_candy_cane = Golden_candy_cane()
+            all_sprites.add(golden_candy_cane)
+            golden_candy_canes.add(golden_candy_cane)
+            spawn_golden_candy_cane_timer = 0
+
+        #add difficulty as score goes up
+        if score > 20 and score <= 29:
+            obstacle_frequency = 100
+            snow_flake_frequency = 25
+            print('20+')
+        if score >= 30 and score <= 39:
+            obstacle_frequency = 80
+            snow_flake_frequency = 20
+            print('30+')
+        if score >= 40 and score <= 59:
+            obstacle_frequency = 60
+            snow_flake_frequency = 15  
+            print('40+')
+        if score >= 60:
+            snow_flake_frequency = 8
+            obstacle_frequency= 40
+            print('60+')
+
 
         # Update
         all_sprites.update()
@@ -81,12 +115,26 @@ def main():
         snow_flake_hits = [s for s in snow_flakes if sleigh.hitbox.colliderect(s.hitbox)]
         for hit in snow_flake_hits:
             hit.kill()
-            sleigh.speed -= 0.01
+            sleigh.speed -= 0.02
+            if score >= 60:
+                sleigh.speed -= 0.02
+
+        golden_candy_cane_hits = [g for g in golden_candy_canes if sleigh.hitbox.colliderect(g.hitbox)]
+        for hit in golden_candy_cane_hits:
+            hit.kill()
+            sleigh.speed = 7.5
+            health += 1
+            score += 10
 
         # Game over on obstacle collision
         obstacle_hits = [o for o in obstacles if sleigh.hitbox.colliderect(o.hitbox)]
-        if obstacle_hits:
-            running = False
+        for hit in obstacle_hits:
+            health -= 1
+            hit.kill()
+            print(health)
+            if health < 1:
+                running = False
+
         # Draw
         screen.fill(WHITE)
         all_sprites.draw(screen)
@@ -99,6 +147,8 @@ def main():
             pygame.draw.rect(screen, RED, obstacle.hitbox, 2)
         for flake in snow_flakes:
             pygame.draw.rect(screen, BLUE, flake.hitbox, 2)
+        for cane in golden_candy_canes:
+            pygame.draw.rect(screen, BLUE, cane.hitbox, 2)
 
         # Score display
         score_text = font.render(f"Score: {score}", True, (0, 0, 0))
