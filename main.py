@@ -9,6 +9,7 @@ pygame.init()
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 
 # Screen dimensions
 SCREEN_WIDTH = 800
@@ -60,17 +61,26 @@ def main():
         # Update
         all_sprites.update()
 
-        # Collision detection
-        present_hits = pygame.sprite.spritecollide(sleigh, presents, True)
-        score += len(present_hits)
+        # Collision detection using hitboxes
+        present_hits = [p for p in presents if sleigh.hitbox.colliderect(p.hitbox)]
+        for hit in present_hits:
+            hit.kill()
+            score += 1
 
         # Game over on obstacle collision
-        if pygame.sprite.spritecollideany(sleigh, obstacles):
+        obstacle_hits = [o for o in obstacles if sleigh.hitbox.colliderect(o.hitbox)]
+        if obstacle_hits:
             running = False
-
         # Draw
         screen.fill(WHITE)
         all_sprites.draw(screen)
+
+         # Draw hitboxes in red
+        pygame.draw.rect(screen, BLUE, sleigh.hitbox, 2)
+        for present in presents:
+            pygame.draw.rect(screen, RED, present.hitbox, 2)
+        for obstacle in obstacles:
+            pygame.draw.rect(screen, RED, obstacle.hitbox, 2)
 
         # Score display
         score_text = font.render(f"Score: {score}", True, (0, 0, 0))
