@@ -37,7 +37,7 @@ def main():
     sleigh = Sleigh()
     all_sprites.add(sleigh)
 
-    score = 60
+    score = 0
     spawn_present_timer = 0
     spawn_obstacle_timer = 0
     spawn_golden_candy_cane_timer = -500
@@ -87,20 +87,15 @@ def main():
         if score > 20 and score <= 29:
             obstacle_frequency = 100
             snow_flake_frequency = 25
-            print('20+')
         if score >= 30 and score <= 39:
             obstacle_frequency = 80
             snow_flake_frequency = 20
-            print('30+')
         if score >= 40 and score <= 59:
             obstacle_frequency = 60
             snow_flake_frequency = 15  
-            print('40+')
         if score >= 60:
             snow_flake_frequency = 8
             obstacle_frequency= 40
-            print('60+')
-
 
         # Update
         all_sprites.update()
@@ -140,18 +135,20 @@ def main():
         all_sprites.draw(screen)
 
          # Draw hitboxes in red
-        pygame.draw.rect(screen, BLUE, sleigh.hitbox, 2)
-        for present in presents:
-            pygame.draw.rect(screen, RED, present.hitbox, 2)
-        for obstacle in obstacles:
-            pygame.draw.rect(screen, RED, obstacle.hitbox, 2)
-        for flake in snow_flakes:
-            pygame.draw.rect(screen, BLUE, flake.hitbox, 2)
-        for cane in golden_candy_canes:
-            pygame.draw.rect(screen, BLUE, cane.hitbox, 2)
+        # pygame.draw.rect(screen, BLUE, sleigh.hitbox, 2)
+        # for present in presents:
+        #     pygame.draw.rect(screen, RED, present.hitbox, 2)
+        # for obstacle in obstacles:
+        #     pygame.draw.rect(screen, RED, obstacle.hitbox, 2)
+        # for flake in snow_flakes:
+        #     pygame.draw.rect(screen, BLUE, flake.hitbox, 2)
+        # for cane in golden_candy_canes:
+        #     pygame.draw.rect(screen, BLUE, cane.hitbox, 2)
 
         # Score display
         score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+        health_text = font.render(f'Health: {health}', True, (0, 0, 0))
+        screen.blit(health_text, (690, 10))
         screen.blit(score_text, (10, 10))
 
         pygame.display.flip()
