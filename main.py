@@ -126,7 +126,6 @@ def main():
         for hit in obstacle_hits:
             health -= 1
             hit.kill()
-            print(health)
             if health < 1:
                 running = False
 
