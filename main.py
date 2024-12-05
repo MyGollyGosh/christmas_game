@@ -1,4 +1,5 @@
 import pygame
+import math
 from lib.obstacle import Obstacle
 from lib.present import Present
 from lib.sleigh import Sleigh
@@ -45,6 +46,9 @@ class Game:
         self.obstacle_frequency = 120
         self.snow_flake_frequency = 30
 
+        #music
+        self.music = pygame.mixer.music.load('assets/music.mp3')
+
     def restart(self):
         self.game_over = False
         self.score = 0
@@ -62,14 +66,18 @@ class Game:
 
     def game_over_screen(self):
         self.screen.fill(self.WHITE)
+
+        elapsed_time = pygame.time.get_ticks() / 1000  # Convert milliseconds to seconds
+        float_offset = math.sin(elapsed_time * 2) * 10  # Adjust frequency and amplitude of float
+
         game_over_text = self.font.render('GAME OVER', True, self.RED)
         score_text = self.font.render(f'Your final score was {self.score}', True, self.RED)
         restart_text = self.font.render('Press R to restart', True, self.RED)
 
         # Center alignment
-        game_over_rect = game_over_text.get_rect(center=(self.SCREEN_WIDTH / 2, self.SCREEN_HEIGHT / 2.3))
-        score_rect = score_text.get_rect(center=(self.SCREEN_WIDTH / 2, self.SCREEN_HEIGHT / 2))
-        restart_rect = restart_text.get_rect(center=(self.SCREEN_WIDTH / 2, self.SCREEN_HEIGHT / 1.75))
+        game_over_rect = game_over_text.get_rect(center=(self.SCREEN_WIDTH / 2, self.SCREEN_HEIGHT / 2.3 + float_offset))
+        score_rect = score_text.get_rect(center=(self.SCREEN_WIDTH / 2, self.SCREEN_HEIGHT / 2 + float_offset))
+        restart_rect = restart_text.get_rect(center=(self.SCREEN_WIDTH / 2, self.SCREEN_HEIGHT / 1.75 + float_offset))
         self.screen.blit(game_over_text, game_over_rect.topleft)
         self.screen.blit(score_text, score_rect.topleft)
         self.screen.blit(restart_text, restart_rect.topleft)
@@ -150,6 +158,7 @@ class Game:
 
     def run(self):
         running = True
+        pygame.mixer.music.play(-1)
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -159,7 +168,6 @@ class Game:
                 self.spawn_presents_and_obstacles()
                 self.detect_hits()
                 self.all_sprites.update()
-
             # Draw everything
             self.screen.fill(self.WHITE)
             if not self.game_over:
