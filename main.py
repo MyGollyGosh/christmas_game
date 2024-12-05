@@ -35,7 +35,7 @@ class Game:
         self.sleigh = Sleigh()
         self.all_sprites.add(self.sleigh)
         self.score = 0
-        self.health = 1
+        self.health = 3
         self.game_over = False
 
         # Timers and frequencies
@@ -46,7 +46,11 @@ class Game:
         self.obstacle_frequency = 120
         self.snow_flake_frequency = 30
 
-        #music
+        #music and sound effects
+        pygame.mixer.init()
+        self.hit_sound = pygame.mixer.Sound('assets/hit.mp3')
+        self.bite_sound = pygame.mixer.Sound('assets/bite.mp3')
+        self.ding_sound = pygame.mixer.Sound('assets/ding.mp3')
         self.music = pygame.mixer.music.load('assets/music.mp3')
 
     def restart(self):
@@ -125,15 +129,19 @@ class Game:
         if self.score >= 40 and self.score <= 59:
             self.obstacle_frequency = 60
             self.snow_flake_frequency = 15
-        if self.score >= 60:
+        if self.score >= 60 and self.score <= 149:
             self.snow_flake_frequency = 8
             self.obstacle_frequency = 40
+        if self.score >= 150:
+            self.snow_flake_frequency = 2
+            self.obstacle_frequency = 10
 
     def detect_hits(self):
         present_hits = [p for p in self.presents if self.sleigh.hitbox.colliderect(p.hitbox)]
         for hit in present_hits:
             hit.kill()
             self.score += 1
+            self.bite_sound.play()
 
         snow_flake_hits = [s for s in self.snow_flakes if self.sleigh.hitbox.colliderect(s.hitbox)]
         for hit in snow_flake_hits:
@@ -148,11 +156,13 @@ class Game:
             self.sleigh.speed = 7.5
             self.health += 1
             self.score += 10
+            self.ding_sound.play()
 
         obstacle_hits = [o for o in self.obstacles if self.sleigh.hitbox.colliderect(o.hitbox)]
         for hit in obstacle_hits:
             self.health -= 1
             hit.kill()
+            self.hit_sound.play()
             if self.health < 1:
                 self.game_over = True
 
